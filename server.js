@@ -1,7 +1,7 @@
 import express from "express";
 import router from "./routes/index";
 
-app = express;
+const app = express();
 
 app.use('/', router);
 
