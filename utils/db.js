@@ -10,7 +10,7 @@ class DBClient {
     this.connected = false
     this.client.connect().then((conn) => {
       this.connected = true;
-      this.db = conn.db(this.DB_DATABASEDB_DATABASE);
+      this.db = conn.db(this.DB_DATABASE);
     }, (err) => {
       console.log(err);
     })
