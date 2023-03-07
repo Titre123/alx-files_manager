@@ -12,12 +12,12 @@ class DBClient {
   connect () {
     try {
     // Connect the client to the server (optional starting in v4.7)
-      client.connect();
+      client.connect((err) => {
+        throw Error(err);
+      });
     // Establish and verify connection
       client.db("admin").command({ ping: 1 });
       console.log("Connected successfully to server");
-    } catch (err) {
-      throw new Error(err);
     } finally {
     // Ensures that the client will close when you finish/error
       client.close();
