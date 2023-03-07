@@ -15,6 +15,7 @@ async function main() {
   console.log('Connected successfully to server');
   const db = client.db(dbName);
   const collection = db.collection('documents');
+  console.log(collection.countDocuments())
 
   // the following code examples can be pasted here...
 
