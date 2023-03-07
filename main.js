@@ -1,30 +1,27 @@
-import dbClient from './utils/db';
+import MongoClient from 'mongodb';
+// or as an es module:
+// import { MongoClient } from 'mongodb'
 
-const waitConnection = () => {
-    return new Promise((resolve, reject) => {
-        let i = 0;
-        const repeatFct = async () => {
-            await setTimeout(() => {
-                i += 1;
-                if (i >= 10) {
-                    reject()
-                }
-                else if(!dbClient.isAlive()) {
-                    repeatFct()
-                }
-                else {
-                    resolve()
-                }
-            }, 1000);
-        };
-        repeatFct();
-    })
-};
+// Connection URL
+const url = 'mongodb://localhost:27017';
+const client = new MongoClient(url);
 
-(async () => {
-    console.log(dbClient.isAlive());
-    await waitConnection();
-    console.log(dbClient.isAlive());
-    console.log(await dbClient.nbUsers());
-    console.log(await dbClient.nbFiles());
-})();
+// Database Name
+const dbName = 'myProject';
+
+async function main() {
+  // Use connect method to connect to the server
+  await client.connect();
+  console.log('Connected successfully to server');
+  const db = client.db(dbName);
+  const collection = db.collection('documents');
+
+  // the following code examples can be pasted here...
+
+  return 'done.';
+}
+
+main()
+  .then(console.log)
+  .catch(console.error)
+  .finally(() => client.close());
