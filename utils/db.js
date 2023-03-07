@@ -1,11 +1,11 @@
-import MongoClient from "mongodb";
+import MongoClient from 'mongodb';
 
 class DBClient {
 
   constructor () {
-    this.DB_HOST = process.env.DB_HOST || 'localhost',
-    this.DB_PORT = process.env.DB_PORT || 27017,
-    this.DB_DATABASE = process.env.DB_DATABASE || 'files_manager',
+    this.DB_HOST = process.env.DB_HOST || 'localhost';
+    this.DB_PORT = process.env.DB_PORT || 27017;
+    this.DB_DATABASE = process.env.DB_DATABASE || 'files_manager';
     this.client = new MongoClient( `mongodb://${this.DB_HOST}:${this.DB_HOST}` );
   }
 
