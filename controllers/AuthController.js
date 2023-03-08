@@ -8,7 +8,7 @@ class AuthController {
     // static method that serves as callback for /connect endpoint
     static async getConnect(req, res) {
         //  get header Authentication
-        const authHeader = req.headers['Authorization'];
+        const authHeader = req.get('Authorization');
         //  destructure authHeader
         const [authType, authCredentials] = authHeader.split(' ');
         if (authType === 'Basic') {
