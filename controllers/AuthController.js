@@ -17,13 +17,13 @@ class AuthController {
             const hashPass = crypto.createHash('sha1').update(password).digest('hex');
             // query dbClient for user
             const user = await dbClient.findUser({email: email, password: hashPass});
-            if (user == null) {
+            if (user === null) {
+                res.status(401).send({"error": "Unauthorized"});
+            }
+            else {
                 const token = uuidv4();
                 await redisClient.set(`auth_${token}`, user._id, 86400);
                 res.status(200).send({"token": token})
-            }
-            else {
-                res.status(401).send({"error": "Unauthorized"});
             }
         }
     }
