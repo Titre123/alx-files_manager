@@ -33,6 +33,20 @@ class DBClient {
       return await collection.countDocuments();
     }
   }
+
+  findUser(field, value) {
+    if(this.isAlive() == true) {
+      const collection = this.db.collection("users");
+      return collection.findOne({[field]: value});
+    }
+  }
+
+  insertUser(user) {
+    if(this.isAlive() == true) {
+      const collection = this.db.collection("users");
+      collection.insertOne(user);
+    }
+  }
 }
 
 const dbClient = new DBClient();
