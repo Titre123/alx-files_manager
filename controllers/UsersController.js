@@ -13,13 +13,13 @@ class UsersController {
             res.status(400).send({'error': 'Missing password'});
         }
         const user = await dbClient.findUser({'email': body.email});
-        if (user !== {} || user !== null) {
-            res.status(400).send({'error': 'Already exist', user: user});
-        }
-        else {
+        if (user === null) {
             body.password = crypto.createHash('sha1').update(body.password).digest('hex');
             const new_user = await dbClient.insertUser(body);
             res.status(200).send({"id": new_user.id, "email": new_user.email});
+        }
+        else {
+            res.status(400).send({'error': 'Already exist', user: user});
         }
     }
 
