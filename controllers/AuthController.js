@@ -7,7 +7,7 @@ class AuthController {
 
     static getConnect(req, res) {
         const authHeader = req.headers['Authorization'];
-        const data = authHeader.split(" ")[0]
+        const data = authHeader.split(" ")[1]
         const decodedData = atob(data);
         const email = decodedData.split(':')[0];
         const password = (decodedData.split(':')[1]);
