@@ -34,10 +34,10 @@ class DBClient {
     }
   }
 
-  findUser(query) {
+  async findUser(query) {
     if(this.isAlive() == true) {
       const collection = this.db.collection("users");
-      return collection.findOne(query);
+      return await collection.findOne(query);
     }
   }
 
