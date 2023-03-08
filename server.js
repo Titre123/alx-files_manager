@@ -8,4 +8,4 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use('/', router);
 
-app.listen(process.env.PORT || 5000, 'localhost');
+app.listen(process.env.PORT || 5000, 'localhost', () => {console.log('server started')});
