@@ -15,7 +15,8 @@ class UsersController {
         const user = await dbClient.findUser({'email': body.email});
         if (user === null) {
             body.password = crypto.createHash('sha1').update(body.password).digest('hex');
-            const new_user = await dbClient.insertUser(body);
+            await dbClient.insertUser(body);
+            const new_user = dbClient.findUser({email: body.email})
             res.status(200).send({"id": new_user.id, "email": new_user.email});
         }
         else {
