@@ -16,10 +16,12 @@ class UsersController {
         if (user == {} || user == undefined) {
             res.status(400).send({'error': 'Already exist'});
         }
-        body.password = crypto.createHash('sha1').update(body.password).digest('hex');
-        dbClient.insertUser(body);
-        const new_user = dbClient.findUser({'email': body.email});
-        res.status(200).send({"id": new_user.id, "email": new_user.email});
+        else {
+            body.password = crypto.createHash('sha1').update(body.password).digest('hex');
+            dbClient.insertUser(body);
+            const new_user = dbClient.findUser({'email': body.email});
+            res.status(200).send({"id": new_user.id, "email": new_user.email});
+        }
     }
 
     static getMe(req, res) {
