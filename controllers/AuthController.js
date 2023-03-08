@@ -1,5 +1,5 @@
 import dbClient from '../utils/db';
-import crypto from "crypto";
+import sha1 from "sha1";
 import { v4 as uuidv4 } from 'uuid';
 import redisClient from '../utils/redis';
 
@@ -13,10 +13,12 @@ class AuthController {
         const [authType, authCredentials] = authHeader.split(' ');
         if (authType === 'Basic') {
             const [email, password] = atob(authCredentials).split(':');
+            console.log(email, password)
             //  hash passwrod
-            const hashPass = crypto.createHash('sha1').update(password).digest('hex');
+            const hashPass = sha1(password);
             // query dbClient for user
             const user = await dbClient.findUser({email: email, password: hashPass});
+            console.log(user)
             if (user === null) {
                 res.status(401).send({"error": "Unauthorized"});
             }

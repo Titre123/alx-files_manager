@@ -1,12 +1,3 @@
-import redisClient from './utils/redis';
-
-(async () => {
-    console.log(redisClient.isAlive());
-    console.log(await redisClient.get('myKey'));
-    await redisClient.set('myKey', 12, 5);
-    console.log(await redisClient.get('myKey'));
-
-    setTimeout(async () => {
-        console.log(await redisClient.get('myKey'));
-    }, 1000*10)
-})();
+const sha1 = require('sha1');
+console.log(atob('Ym9iQGR5bGFuLmNvbTp0b3RvMTIzNCE='))
+console.log(sha1(atob('Ym9iQGR5bGFuLmNvbTp0b3RvMTIzNCE=').split(':')[1]))

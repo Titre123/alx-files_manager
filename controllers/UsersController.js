@@ -1,5 +1,5 @@
 import dbClient from '../utils/db';
-import crypto from "crypto";
+import sha1 from "sha1";
 import redisClient from '../utils/redis';
 
 class UsersController {
@@ -16,7 +16,7 @@ class UsersController {
         // query dbCLient for a user
         const user = await dbClient.findUser({'email': body.email});
         if (user === null) {
-            body.password = crypto.createHash('sha1').update(body.password).digest('hex');
+            body.password = sha1(body.password);
             //  insert new user into the database
             await dbClient.insertUser(body);
             //  query dbCLient for a user for the user added
