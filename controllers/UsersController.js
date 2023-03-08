@@ -12,7 +12,7 @@ class UsersController {
         if (!body.hasOwnProperty('password')) {
             res.status(400).send({'error': 'Missing password'});
         }
-        const user = await dbClient.findUser({'email': "taiwo@dylan.com"});
+        const user = await dbClient.findUser({'email': body.email});
         if (user !== {} || user !== null) {
             res.status(400).send({'error': 'Already exist', user: user});
         }
