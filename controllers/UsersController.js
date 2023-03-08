@@ -16,9 +16,8 @@ class UsersController {
         if (user === null) {
             body.password = crypto.createHash('sha1').update(body.password).digest('hex');
             await dbClient.insertUser(body);
-            const new_user = await 
-            dbClient.findUser({email: body.email})
-            res.status(200).send({"id": new_user.id, "email": new_user.email});
+            const new_user = await dbClient.findUser({email: body.email})
+            res.status(200).send({"id": new_user._id, "email": new_user.email});
         }
         else {
             res.status(400).send({'error': 'Already exist'});
@@ -27,9 +26,9 @@ class UsersController {
 
     static async getMe(req, res) {
         const token = req.headers['X-Token'];
-        const userId = redisClient.get(`auth_${token}`)
+        const userId = await redisClient.get(`auth_${token}`)
         const user = await dbClient.findUser({id: userId});
-        res.status(200).send({"id": user.id, "email": user.email});
+        res.status(200).send({"id": user._id, "email": user.email});
     }
 }
 

@@ -5,30 +5,34 @@ import redisClient from '../utils/redis';
 
 class AuthController {
 
-    static getConnect(req, res) {
+    static async getConnect(req, res) {
         const authHeader = req.headers['Authorization'];
-        const data = authHeader.split(" ")[1]
-        const decodedData = atob(data);
-        const email = decodedData.split(':')[0];
-        const password = (decodedData.split(':')[1]);
-        const hashPass = crypto.createHash('sha1').update(password).digest('hex');
-        const user = dbClient.findUser({email: email, password: hashPass});
-        if (user == {} || user == undefined) {
-            res.status(401).send({"error": "Unauthorized"});
+        const [authType, authCredentials] = authHeader.split(' ');
+        if (authType === 'Basic') {
+            const [email, password] = atob(authCredentials).split(':');
+            const hashPass = crypto.createHash('sha1').update(password).digest('hex');
+            const user = await dbClient.findUser({email: email, password: hashPass});
+            if (user == null) {
+                const token = uuidv4();
+                await redisClient.set(`auth_${token}`, user._id, 86400);
+                res.status(200).send({"token": token})
+            }
+            else {
+                res.status(401).send({"error": "Unauthorized"});
+            }
         }
-        const token = uuidv4();
-        redisClient.set(`auth_${token}`, user.id, 86400);
-        res.status(200).send({"token": token})
     }
 
-    static getDisconnect(req, res) {
+    static async getDisconnect(req, res) {
         const token = req.headers['X-Token'];
-        const userId = redisClient.get(`auth_${token}`)
-        const user = dbClient.findUser({id: userId});
-        if (user == {} || user == undefined) {
+        const userId = await redisClient.get(`auth_${token}`)
+        const user = await dbClient.findUser({_id: userId});
+        if (user === null) {
             res.status(401).send({"error": "Unauthorized"});
         }
-        redisClient.del(`auth_${token}`);
+        else {
+            redisClient.del(`auth_${token}`);
+        }
     }
 }
 
