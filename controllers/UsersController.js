@@ -19,7 +19,7 @@ class UsersController {
         else {
             body.password = crypto.createHash('sha1').update(body.password).digest('hex');
             dbClient.insertUser(body);
-            const new_user = dbClient.findUser({'email': body.email});
+            const new_user = dbClient.findUser({'email': body.email, 'password': body.password});
             res.status(200).send({"id": new_user.id, "email": new_user.email});
         }
     }
