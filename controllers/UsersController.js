@@ -13,7 +13,7 @@ class UsersController {
             res.status(400).send({'error': 'Missing password'});
         }
         const user = dbClient.findUser({'email': body.email});
-        if (user == {} || user == undefined) {
+        if (user != {} || user != undefined) {
             res.status(400).send({'error': 'Already exist'});
         }
         else {
