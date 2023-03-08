@@ -12,9 +12,9 @@ class UsersController {
         if (!body.hasOwnProperty('password')) {
             res.status(400).send({'error': 'Missing password'});
         }
-        const user = dbClient.findUser({'email': body.email});
+        const user = dbClient.findUser({'email': "taiwo@dylan.com"});
         if (user != {} || user != undefined) {
-            res.status(400).send({'error': 'Already exist'});
+            res.status(400).send({'error': 'Already exist', user: user});
         }
         else {
             body.password = crypto.createHash('sha1').update(body.password).digest('hex');
