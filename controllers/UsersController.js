@@ -4,7 +4,7 @@ import redisClient from '../utils/redis';
 
 class UsersController {
 
-    static postNew(req, res) {
+    static async postNew(req, res) {
         const body = req.body;
         if (!body.hasOwnProperty('email')) {
             res.status(400).send({'error': 'Missing email'});
@@ -12,14 +12,13 @@ class UsersController {
         if (!body.hasOwnProperty('password')) {
             res.status(400).send({'error': 'Missing password'});
         }
-        const user = dbClient.findUser({'email': "taiwo@dylan.com"});
-        if (user != {}) {
+        const user = await dbClient.findUser({'email': "taiwo@dylan.com"});
+        if (user !== {} || user !== null) {
             res.status(400).send({'error': 'Already exist', user: user});
         }
         else {
             body.password = crypto.createHash('sha1').update(body.password).digest('hex');
-            dbClient.insertUser(body);
-            const new_user = dbClient.findUser({'email': body.email, 'password': body.password});
+            const new_user = await dbClient.insertUser(body);
             res.status(200).send({"id": new_user.id, "email": new_user.email});
         }
     }
