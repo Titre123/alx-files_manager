@@ -4,6 +4,7 @@ import redisClient from '../utils/redis';
 
 class UsersController {
 
+    // static function that servers as callback to the POST /users endpoint
     static async postNew(req, res) {
         const body = req.body;
         if (!body.hasOwnProperty('email')) {
@@ -12,10 +13,13 @@ class UsersController {
         if (!body.hasOwnProperty('password')) {
             res.status(400).send({'error': 'Missing password'});
         }
+        // query dbCLient for a user
         const user = await dbClient.findUser({'email': body.email});
         if (user === null) {
             body.password = crypto.createHash('sha1').update(body.password).digest('hex');
+            //  insert new user into the database
             await dbClient.insertUser(body);
+            //  query dbCLient for a user for the user added
             const new_user = await dbClient.findUser({email: body.email})
             res.status(200).send({"id": new_user._id, "email": new_user.email});
         }
@@ -24,6 +28,7 @@ class UsersController {
         }
     }
 
+    //  static method to server as callback for /users/me endpoint
     static async getMe(req, res) {
         const token = req.headers['X-Token'];
         const userId = await redisClient.get(`auth_${token}`)

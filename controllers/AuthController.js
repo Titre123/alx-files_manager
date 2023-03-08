@@ -5,12 +5,17 @@ import redisClient from '../utils/redis';
 
 class AuthController {
 
+    // static method that serves as callback for /connect endpoint
     static async getConnect(req, res) {
+        //  get header Authentication
         const authHeader = req.headers['Authorization'];
+        //  destructure authHeader
         const [authType, authCredentials] = authHeader.split(' ');
         if (authType === 'Basic') {
             const [email, password] = atob(authCredentials).split(':');
+            //  hash passwrod
             const hashPass = crypto.createHash('sha1').update(password).digest('hex');
+            // query dbClient for user
             const user = await dbClient.findUser({email: email, password: hashPass});
             if (user == null) {
                 const token = uuidv4();
@@ -23,9 +28,11 @@ class AuthController {
         }
     }
 
+    // static method that serves as callback for /disconnect endpoint
     static async getDisconnect(req, res) {
         const token = req.headers['X-Token'];
-        const userId = await redisClient.get(`auth_${token}`)
+        // get redis key in redis-server
+        const userId = await redisClient.get(`auth_${token}`);
         const user = await dbClient.findUser({_id: userId});
         if (user === null) {
             res.status(401).send({"error": "Unauthorized"});
