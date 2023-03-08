@@ -41,10 +41,10 @@ class DBClient {
     }
   }
 
-  insertUser(user) {
+  async insertUser(user) {
     if(this.isAlive() == true) {
       const collection = this.db.collection("users");
-      collection.insertOne(user);
+      return await collection.insertOne(user);
     }
   }
 }
