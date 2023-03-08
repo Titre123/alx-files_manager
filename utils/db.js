@@ -34,10 +34,10 @@ class DBClient {
     }
   }
 
-  findUser(field, value) {
+  findUser(query) {
     if(this.isAlive() == true) {
       const collection = this.db.collection("users");
-      return collection.findOne({[field]: value});
+      return collection.findOne(query);
     }
   }
 
