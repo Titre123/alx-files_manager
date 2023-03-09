@@ -9,7 +9,7 @@ class RedisClient {
     });
   }
 
-  connect() {
+  async connect() {
     return new Promise((resolve, reject) => {
       this.client.once('ready', () => {
         resolve();
@@ -21,12 +21,12 @@ class RedisClient {
     });
   }
 
-  isAlive() {
+  async isAlive() {
     if (this.client.connected === true) {
       return true;
     }
     try {
-      this.connect();
+      await this.connect();
       return true;
     } catch (error) {
       console.error('Error connecting to Redis:', error);
@@ -35,7 +35,7 @@ class RedisClient {
   }
 
   async get(key) {
-    if (this.isAlive() === true) {
+    if (await this.isAlive() === true) {
       const getProm = promisify(this.client.get).bind(this.client);
       const res = await getProm(key);
       return res;
@@ -44,7 +44,7 @@ class RedisClient {
   }
 
   async set(key, value, duration) {
-    if (this.isAlive() === true) {
+    if (await this.isAlive() === true) {
       const setProm = promisify(this.client.setex).bind(this.client);
       await setProm(key, duration, value);
     }
@@ -52,7 +52,7 @@ class RedisClient {
   }
 
   async del(key) {
-    if (this.isAlive() === true) {
+    if (await this.isAlive() === true) {
       const delProm = promisify(this.client.del).bind(this.client);
       await (delProm(key));
     }
