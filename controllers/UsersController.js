@@ -8,10 +8,10 @@ class UsersController {
   static async postNew(req, res, next) {
     const { body } = req;
     if (!Object.prototype.hasOwnProperty.call(body, 'email')) {
-      res.status(400).send({ error: 'Missing email' });
+      return res.status(400).send({ error: 'Missing email' });
     }
     if (!Object.prototype.hasOwnProperty.call(body, 'password')) {
-      res.status(400).send({ error: 'Missing password' });
+      return res.status(400).send({ error: 'Missing password' });
     }
     // query dbCLient for a user
     const user = await dbClient.findUser({ email: body.email });
