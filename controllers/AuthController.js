@@ -23,8 +23,8 @@ class AuthController {
       const hashPass = sha1(password);
       // query dbClient for user
       const user = await dbClient.findUser({ email, password: hashPass });
-      if (user === null) {
-        res.status(401).send({ error: 'Unauthorized' });
+      if (user === null || user === undefined) {
+        res.status(401).send({ "error":"Unauthorized" });
       } else {
         const token = uuidv4();
         await redisClient.set(`auth_${token}`, user._id, 86400);
