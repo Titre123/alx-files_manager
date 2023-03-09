@@ -5,7 +5,7 @@ import redisClient from '../utils/redis';
 
 class UsersController {
   // static function that servers as callback to the POST /users endpoint
-  static async postNew(req, res, next) {
+  static async postNew(req, res) {
     const { body } = req;
     if (!Object.prototype.hasOwnProperty.call(body, 'email')) {
       return res.status(400).send({ error: 'Missing email' });
@@ -26,6 +26,7 @@ class UsersController {
     } else {
       res.status(400).send({ error: 'Already exist' });
     }
+    return null;
   }
 
   //  static method to server as callback for /users/me endpoint
