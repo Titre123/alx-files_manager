@@ -24,12 +24,14 @@ class AuthController {
       // query dbClient for user
       const user = await dbClient.findUser({ email, password: hashPass });
       if (user === null || user === undefined) {
-        res.status(401).send({ "error":"Unauthorized" });
+        res.status(401).send({ error: 'Unauthorized' });
       } else {
         const token = uuidv4();
         await redisClient.set(`auth_${token}`, user._id, 86400);
         res.status(200).send({ token });
       }
+    } else {
+      res.status(401).send({ error: 'Unauthorized' });
     }
   }
 
@@ -38,7 +40,7 @@ class AuthController {
     const token = req.get('X-Token');
     // get redis key in redis-server
     const userId = await redisClient.get(`auth_${token}`);
-    const user = await dbClient.findUser({ _id: ObjectId(userId) });
+    const user = await dbClient.findUser({ _id: new ObjectId(userId) });
     if (user === null || user === undefined) {
       res.status(401).send({ error: 'Unauthorized' });
     } else {
