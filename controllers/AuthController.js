@@ -23,7 +23,6 @@ class AuthController {
       const hashPass = sha1(password);
       // query dbClient for user
       const user = await dbClient.findUser({ email, password: hashPass });
-      console.log(user);
       if (user === null) {
         res.status(401).send({ error: 'Unauthorized' });
       } else {
