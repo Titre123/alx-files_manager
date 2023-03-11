@@ -15,6 +15,9 @@ class FilesController {
     const userId = await redisClient.get(`auth_${token}`);
     // get user using the userId
     const user = await dbClient.findUser({ _id: new ObjectId(userId) });
+    if (user === null || user === undefined) {
+      return res.status(401).send({ error: 'Unauthorized' });
+    }
     // list of accepted file type
     const accepted = ['file', 'folder', 'image'];
     // check if body has elements
@@ -78,9 +81,8 @@ class FilesController {
       userId: newFile.userId,
       name: newFile.name,
       type: newFile.type,
-      parentId: newFile.parentId,
       isPublic: newFile.isPublic,
-      localPath: fileObj.localPath,
+      parentId: newFile.parentId
     });
     return null;
   }
