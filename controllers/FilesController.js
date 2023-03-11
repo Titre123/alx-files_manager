@@ -82,7 +82,7 @@ class FilesController {
       name: newFile.name,
       type: newFile.type,
       isPublic: newFile.isPublic,
-      parentId: newFile.parentId
+      parentId: newFile.parentId,
     });
     return null;
   }

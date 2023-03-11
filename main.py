@@ -9,3 +9,5 @@ x = requests.get('http://127.0.0.1:5000/connect', headers= {"Authorization" : "B
 # x = requests.post('http://127.0.0.1:5000/files', data= { "name": "images", "type": "folder", "parentId": "640c42dbbc99a21b3c9f2c09" }, headers= {"X-Token": "774b8870-72be-4d7f-b5db-5c0eb3625b4e"})
 
 print(x.text)
+ curl -XPOST 0.0.0.0:5000/files -H "X-Token: 478dab3f-648f-4512-8d37-0a1ffad1a045" -H "Content-Type: application/json" -d '{ "name": "myText.txt", "type": "file", "data": "SGVsbG8gV2Vic3RhY2shCg==" }' ; echo ""
+ curl -XPOST 0.0.0.0:5000/files -H "X-Token: 478dab3f-648f-4512-8d37-0a1ffad1a045" -H "Content-Type: application/json" -d '{ "name": "images", "type": "folder" }' ; echo ""
