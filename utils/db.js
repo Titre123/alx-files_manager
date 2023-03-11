@@ -5,7 +5,7 @@ class DBClient {
     this.DB_HOST = process.env.DB_HOST || 'localhost';
     this.DB_PORT = process.env.DB_PORT || 27017;
     this.DB_DATABASE = process.env.DB_DATABASE || 'files_manager';
-    this.client = new MongoClient(`mongodb+srv://Tiazzy:Tiazzy123@cluster0.qxccq75.mongodb.net`, { useUnifiedTopology: true });
+    this.client = new MongoClient(`mongodb://${this.DB_HOST}:${this.DB_PORT}`, { useUnifiedTopology: true });
     this.connected = false;
     this.client.connect().then((conn) => {
       this.connected = true;
