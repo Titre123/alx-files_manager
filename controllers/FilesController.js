@@ -42,7 +42,8 @@ class FilesController {
 
     if (body.type === 'folder') {
       const fileObj = {userId: user._id, "name": body.name, "type": body.type, "isPublic": Object.prototype.hasOwnProperty(body, 'isPublic') ? body.isPublic : false, "parentId": new ObjectId(body.parentId)};
-      const newFile = await dbClient.insertFile(fileObj);
+      const response = await dbClient.insertFile(fileObj);
+      const [newFile] = response.ops;
       return res.status(201).send({"id": newFile._id, "userId": newFile.userId, "name": newFile.name, "file": newFile.name,
       "type": newFile.file, "isPublic": newFile.isPublic, "parentId": newFile.parentId});
     }
@@ -59,7 +60,8 @@ class FilesController {
       const writer = promisify(fs.writeFile);
       await writer(absolutePath, data);
       const fileObj = {userId: user._id, "name": body.name, "type": body.type, "isPublic": Object.prototype.hasOwnProperty(body, 'isPublic') ? body.isPublic : false, "parentId": 0, localPath: absolutePath};
-      const newFile = await dbClient.insertFile(fileObj);
+      const response = await dbClient.insertFile(fileObj);
+      const [newFile] = response.ops;
       res.status(201).send({"id": newFile._id, "userId": newFile.userId, "name": newFile.name, "file": newFile.name,
       "type": newFile.file, "parentId": newFile.parentId, "isPublic": newFile.isPublic, localPath: fileObj.localPath});
     }
