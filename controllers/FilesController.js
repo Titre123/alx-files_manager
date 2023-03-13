@@ -4,6 +4,7 @@ import fs from 'fs';
 import { promisify } from 'util';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
+import {mime} from 'mime-types';
 
 class FilesController {
   static async postUpload(req, res) {
@@ -85,6 +86,143 @@ class FilesController {
       parentId: newFile.parentId,
     });
     return null;
+  }
+
+  static async getShow() {
+    // get the authentication token
+    const token = req.get('X-Token');
+    // get redis key in redis-server - userId
+    const userId = await redisClient.get(`auth_${token}`);
+    // get user using the userId
+    const user = await dbClient.findUser({ _id: new ObjectId(userId) });
+    if (user === null || user === undefined) {
+      return res.status(401).send({ error: 'Unauthorized' });
+    }
+    const file = dbClient.findFile({_id: new ObjectId(req.params.id), userId: user._id});
+    if (file === null || file === undefined) {
+      return res.status(404).send({"error": "Not found"});
+    }
+    else {
+      res.status(201).send({
+      id: file._id,
+      userId: file.userId,
+      name: file.name,
+      type: file.type,
+      isPublic: file.isPublic,
+      parentId: file.parentId,
+      })
+    }
+  }
+
+  static async getIndex() {
+    // get the authentication token
+    const token = req.get('X-Token');
+    // get redis key in redis-server - userId
+    const userId = await redisClient.get(`auth_${token}`);
+    // get user using the userId
+    const user = await dbClient.findUser({ _id: new ObjectId(userId) });
+    if (user === null || user === undefined) {
+      return res.status(401).send({ error: 'Unauthorized' });
+    }
+    const query = req.query.parentId ? {parentId: new ObjectId(req.query.parentId),
+    userId: user._id} : {parentId: 0, userId: user._id};
+    const result = await dbClient.db.collection('files').aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: req.query.page * 20
+      },
+      {
+        $limit: 20
+      }
+    ])
+    console.log(result);
+  }
+
+  static async putPublish() {
+    // get the authentication token
+    const token = req.get('X-Token');
+    // get redis key in redis-server - userId
+    const userId = await redisClient.get(`auth_${token}`);
+    // get user using the userId
+    const user = await dbClient.findUser({ _id: new ObjectId(userId) });
+    if (user === null || user === undefined) {
+      return res.status(401).send({ error: 'Unauthorized' });
+    }
+    const file = dbClient.db.findOneAndUpdate(
+      {userId: user._id, id: new ObjectId(req.params.id)},
+      {$set: {"isPublic": true}},
+      {returnNewDocument: true}
+    );
+    if (file === null || file === undefined) {
+      return res.status(401).send({ error: 'Not found' });
+    }
+    res.status(201).send({
+      id: file._id,
+      userId: file.userId,
+      name: file.name,
+      type: file.type,
+      isPublic: file.isPublic,
+      parentId: file.parentId,
+    })
+  }
+
+  static async putUnpublish() {
+    // get the authentication token
+    const token = req.get('X-Token');
+    // get redis key in redis-server - userId
+    const userId = await redisClient.get(`auth_${token}`);
+    // get user using the userId
+    const user = await dbClient.findUser({ _id: new ObjectId(userId) });
+    if (user === null || user === undefined) {
+      return res.status(401).send({ error: 'Unauthorized' });
+    }
+    const file = dbClient.db.findOneAndUpdate(
+      {userId: user._id, id: new ObjectId(req.params.id)},
+      {$set: {"isPublic": true}},
+      {returnNewDocument: true}
+    );
+    if (file === null || file === undefined) {
+      return res.status(401).send({ error: 'Not found' });
+    }
+    res.status(201).send({
+      id: file._id,
+      userId: file.userId,
+      name: file.name,
+      type: file.type,
+      isPublic: file.isPublic,
+      parentId: file.parentId,
+    })
+  }
+
+  static async getFile() {
+    // get the authentication token
+    const token = req.get('X-Token');
+    // get redis key in redis-server - userId
+    const userId = await redisClient.get(`auth_${token}`);
+    // get user using the userId
+    const user = await dbClient.findUser({ _id: new ObjectId(userId) });
+    if (user === null || user === undefined) {
+      return res.status(404).send({"error": "Not found"});
+    }
+    const file = dbClient.findFile({_id: new ObjectId(req.params.id), userId: user._id});
+    if (file === null || file === undefined || file.isPublic === false) {
+      return res.status(404).send({"error": "Not found"});
+    }
+    else if (file.type === 'folder') {
+      return res.status(404).send('A folder doesn\'t have content')
+    }
+    try {
+      const path = file.absolutePath;
+      const readFile = promisify(fs.readFile);
+      const data = await readFile(path);
+      const mimeType = mime.contentType(mime.lookup(file.name));
+      res.setHeader('Content-Type', mimeType)
+      res.status(201).send(data);
+    } catch(err) {
+      return res.status(404).send({"error": "Not found"});
+    }
   }
 }
 
