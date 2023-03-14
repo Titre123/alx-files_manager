@@ -4,7 +4,7 @@ import fs from 'fs';
 import { promisify } from 'util';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
-import {mime} from 'mime-types';
+import mime from "mime-types";
 
 class FilesController {
   static async postUpload(req, res) {
@@ -88,7 +88,7 @@ class FilesController {
     return null;
   }
 
-  static async getShow() {
+  static async getShow(req, res) {
     // get the authentication token
     const token = req.get('X-Token');
     // get redis key in redis-server - userId
@@ -98,7 +98,7 @@ class FilesController {
     if (user === null || user === undefined) {
       return res.status(401).send({ error: 'Unauthorized' });
     }
-    const file = dbClient.findFile({_id: new ObjectId(req.params.id), userId: user._id});
+    const file = await dbClient.findFile({_id: new ObjectId(req.params.id), userId: user._id});
     if (file === null || file === undefined) {
       return res.status(404).send({"error": "Not found"});
     }
@@ -114,7 +114,7 @@ class FilesController {
     }
   }
 
-  static async getIndex() {
+  static async getIndex(req, res) {
     // get the authentication token
     const token = req.get('X-Token');
     // get redis key in redis-server - userId
@@ -131,16 +131,16 @@ class FilesController {
         $match: query
       },
       {
-        $skip: req.query.page * 20
+        $skip: req.query.page ? req.query.page - 1 * 20 : 0
       },
       {
         $limit: 20
       }
-    ])
-    console.log(result);
+    ]).toArray();
+    res.status(202).send(result);
   }
 
-  static async putPublish() {
+  static async putPublish(req, res) {
     // get the authentication token
     const token = req.get('X-Token');
     // get redis key in redis-server - userId
@@ -150,25 +150,26 @@ class FilesController {
     if (user === null || user === undefined) {
       return res.status(401).send({ error: 'Unauthorized' });
     }
-    const file = dbClient.db.findOneAndUpdate(
-      {userId: user._id, id: new ObjectId(req.params.id)},
-      {$set: {"isPublic": true}},
+    const file = await dbClient.db.collection('files').findOneAndUpdate(
+      {userId: user._id, _id: new ObjectId(req.params.id)},
+      {$set: {isPublic: true}},
       {returnNewDocument: true}
     );
     if (file === null || file === undefined) {
       return res.status(401).send({ error: 'Not found' });
     }
+    const {value} = file;
     res.status(201).send({
-      id: file._id,
-      userId: file.userId,
-      name: file.name,
-      type: file.type,
-      isPublic: file.isPublic,
-      parentId: file.parentId,
+      id: value._id,
+      userId: value.userId,
+      name: value.name,
+      type: value.type,
+      isPublic: value.isPublic,
+      parentId: value.parentId,
     })
   }
 
-  static async putUnpublish() {
+  static async putUnpublish(req, res) {
     // get the authentication token
     const token = req.get('X-Token');
     // get redis key in redis-server - userId
@@ -178,25 +179,26 @@ class FilesController {
     if (user === null || user === undefined) {
       return res.status(401).send({ error: 'Unauthorized' });
     }
-    const file = dbClient.db.findOneAndUpdate(
-      {userId: user._id, id: new ObjectId(req.params.id)},
-      {$set: {"isPublic": true}},
+    const file = await dbClient.db.collection('files').findOneAndUpdate(
+      {userId: user._id, _id: new ObjectId(req.params.id)},
+      {$set: {isPublic: false}},
       {returnNewDocument: true}
     );
     if (file === null || file === undefined) {
       return res.status(401).send({ error: 'Not found' });
     }
+    const {value} = file;
     res.status(201).send({
-      id: file._id,
-      userId: file.userId,
-      name: file.name,
-      type: file.type,
-      isPublic: file.isPublic,
-      parentId: file.parentId,
+      id: value._id,
+      userId: value.userId,
+      name: value.name,
+      type: value.type,
+      isPublic: value.isPublic,
+      parentId: value.parentId,
     })
   }
 
-  static async getFile() {
+  static async getFile(req, res) {
     // get the authentication token
     const token = req.get('X-Token');
     // get redis key in redis-server - userId
@@ -206,7 +208,7 @@ class FilesController {
     if (user === null || user === undefined) {
       return res.status(404).send({"error": "Not found"});
     }
-    const file = dbClient.findFile({_id: new ObjectId(req.params.id), userId: user._id});
+    const file = await dbClient.findFile({_id: new ObjectId(req.params.id), userId: user._id});
     if (file === null || file === undefined || file.isPublic === false) {
       return res.status(404).send({"error": "Not found"});
     }
@@ -214,7 +216,7 @@ class FilesController {
       return res.status(404).send('A folder doesn\'t have content')
     }
     try {
-      const path = file.absolutePath;
+      const path = file.localPath;
       const readFile = promisify(fs.readFile);
       const data = await readFile(path);
       const mimeType = mime.contentType(mime.lookup(file.name));
